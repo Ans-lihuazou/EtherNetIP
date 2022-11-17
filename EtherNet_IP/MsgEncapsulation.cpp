@@ -1,6 +1,6 @@
 #include "MsgEncapsulation.h"
 
-CMsgEncapsulation::CMsgEncapsulation(){
+CMsgEncapsulation::CMsgEncapsulation() {
 
 	/* Encapsulation Header */
 	m_usEHCommond = 0;
@@ -25,7 +25,7 @@ CMsgEncapsulation::CMsgEncapsulation(){
 	//std::cout << " m_unEHSessionHandle: " << m_unEHSessionHandle << "\n";
 }
 
-CMsgEncapsulation::~CMsgEncapsulation(){
+CMsgEncapsulation::~CMsgEncapsulation() {
 
 }
 
@@ -35,7 +35,7 @@ void CMsgEncapsulation::setEHCommond(const uint16_t& c_usCommond) {
 }
 
 void CMsgEncapsulation::setEHLength(const uint16_t & c_usLength) {
-	
+
 	this->m_usEHLength = c_usLength;
 }
 
@@ -160,7 +160,7 @@ int CMsgEncapsulation::encapsulationCommonIndustrialProtocol(uint8_t * pData, co
 	cip.ucClass = 0x06;
 	cip.ucPathSegment2 = 0x24;
 	cip.ucIstance = 0x01;
-	
+
 	memcpy(pData, &cip, sizeof(cip));
 
 	if (sizeof(cip) > c_unLength) {
@@ -177,7 +177,7 @@ int CMsgEncapsulation::encapsulationCIPConnectionManager(uint8_t * pData, const 
 	if (m_ucCIPServiceCode == CIP_FORWARD_CLOSE_CODE) {
 
 		CLOSE_CIPCONNECTIOPNMANAGER_T cipClose;
-		
+
 		cipClose.usActualTimeOut = 0xf705;
 		cipClose.usConnectionSerialNumber = m_usConnectionSerialNumber;
 		cipClose.usOriginatorVendorID = 0x0030;
@@ -202,13 +202,13 @@ int CMsgEncapsulation::encapsulationCIPConnectionManager(uint8_t * pData, const 
 		return sizeof(cipClose);
 	}
 	else if (m_ucCIPServiceCode == CIP_LARGE_FORWARD_OPEN_CODE) {
-		
+
 		OPEN_CIPCONNECTIOPNMANAGER_T cipOpen;
 		cipOpen.usActualTimeOut = 0x9a06;
 
 		//cipOpen.unOTNetworkConnectionID = 0x33000000;
 		//cipOpen.unTONetworkConnectionID = 0x9d9d0029;
-		
+
 		cipOpen.unOTNetworkConnectionID = Tool::getRand();
 		cipOpen.unTONetworkConnectionID = Tool::getRand();
 
@@ -221,7 +221,7 @@ int CMsgEncapsulation::encapsulationCIPConnectionManager(uint8_t * pData, const 
 		cipOpen.unOTNetworkConnectionParam = 0x43f807cc;
 		cipOpen.unTORPI = 0x006e6b28;
 		cipOpen.unTONetworkConnectionParam = 0x43f807cc;
-		
+
 		cipOpen.ucTrigger = 0xa3;
 
 		cipOpen.ucConnectionPathSize = 0x03;
@@ -238,7 +238,7 @@ int CMsgEncapsulation::encapsulationCIPConnectionManager(uint8_t * pData, const 
 		}
 
 		memcpy(pData, &cipOpen, sizeof(cipOpen));
-		
+
 		setCSDDataLength(sizeof(cipOpen));
 		return sizeof(cipOpen);
 		//read O->T
@@ -251,7 +251,7 @@ int CMsgEncapsulation::encapsulationCIPConnectionManager(uint8_t * pData, const 
 int CMsgEncapsulation::encapsulationConnectCommandSpecificData(uint8_t * pData, const uint32_t & c_unLength) {
 
 	CONNECT_EIPDATA_T eipData;
-	
+
 	eipData.unInterfaceHandl = 0;
 	eipData.usTimeOut = 0;
 	eipData.usItemCounts = 2;
@@ -262,7 +262,7 @@ int CMsgEncapsulation::encapsulationConnectCommandSpecificData(uint8_t * pData, 
 
 	eipData.usDataItemTypeID = 0xb1;
 	//std::cout << " use length is " << m_usCSDDataLength << "\n";
-	eipData.usCIPMessageLength = m_usCSDDataLength+2;
+	eipData.usCIPMessageLength = m_usCSDDataLength + 2;
 	eipData.usCIPSquenceCount = clock();
 
 	setEHLength(m_usCSDDataLength + sizeof(eipData));
@@ -276,7 +276,7 @@ int CMsgEncapsulation::encapsulationConnectCommandSpecificData(uint8_t * pData, 
 }
 
 int CMsgEncapsulation::encapsulationReadCommonIndustrialProtocol(uint8_t * pData, const uint32_t & c_unLength) {
-	
+
 	READ_COMMOMINDUSTRIALPROTOCOL_T readRequest;
 
 	readRequest.strANSISymbol = this->m_strANSISymbol;
@@ -309,7 +309,7 @@ int CMsgEncapsulation::encapsulationReadCommonIndustrialProtocol(uint8_t * pData
 	return unLength;
 }
 
-int CMsgEncapsulation::encapsulationReadCIPClassGeneric(uint8_t * pData, const uint32_t & c_unLength){
+int CMsgEncapsulation::encapsulationReadCIPClassGeneric(uint8_t * pData, const uint32_t & c_unLength) {
 
 	if (this->m_usOptionCount == 0) {
 		return -1;
@@ -353,8 +353,8 @@ int CMsgEncapsulation::encapsulationWriteCIPClassGeneric(uint8_t * pData, const 
 }
 
 int CMsgEncapsulation::encapsulationWriteCommonIndustrialProtocol(uint8_t * pData, const uint32_t & c_unLength) {
-	
-	return encapsulationReadCommonIndustrialProtocol(pData,c_unLength);
+
+	return encapsulationReadCommonIndustrialProtocol(pData, c_unLength);
 }
 
 int CMsgEncapsulation::encapsulationRegisterMessage(uint8_t * pData, const uint32_t & c_unLength) {
@@ -363,7 +363,7 @@ int CMsgEncapsulation::encapsulationRegisterMessage(uint8_t * pData, const uint3
 	uint32_t len = 0;
 	setEHCommond(EIP_REGISTER_CMD);
 	setEHLength(4);
-	if ((len = encapsulationEncapsulationHeader(szEncapsulationHeader, sizeof(szEncapsulationHeader))) < 0 ) {
+	if ((len = encapsulationEncapsulationHeader(szEncapsulationHeader, sizeof(szEncapsulationHeader))) < 0) {
 		return -1;
 	}
 
@@ -380,13 +380,13 @@ int CMsgEncapsulation::encapsulationRegisterMessage(uint8_t * pData, const uint3
 	memset(data, 0, 4);
 	data[0] = 0x01;
 
-	memcpy(pData+len, data, 4);
+	memcpy(pData + len, data, 4);
 	len += 4;
 
 	return len;
 }
 
-int CMsgEncapsulation::encapsulationCloseMessage(uint8_t * pData, const uint32_t & c_unLength){
+int CMsgEncapsulation::encapsulationCloseMessage(uint8_t * pData, const uint32_t & c_unLength) {
 
 	uint8_t szEncapsulationHeader[1024];
 	uint8_t szCommandSpecificData[1024];
@@ -399,7 +399,7 @@ int CMsgEncapsulation::encapsulationCloseMessage(uint8_t * pData, const uint32_t
 	setEHCommond(EIP_SENDRRDATA_CMD);
 	setCIPServiceCode(CIP_FORWARD_CLOSE_CODE);
 
-	if ((len1 = encapsulationCIPConnectionManager(szCIPConnectionManager, sizeof(szCIPConnectionManager))) < 0 ) {
+	if ((len1 = encapsulationCIPConnectionManager(szCIPConnectionManager, sizeof(szCIPConnectionManager))) < 0) {
 		return -1;
 	}
 	if ((len2 = encapsulationCommonIndustrialProtocol(szCommonIndustrialProtocol, sizeof(szCommonIndustrialProtocol))) < 0) {
@@ -439,7 +439,7 @@ int CMsgEncapsulation::encapsulationCloseMessage(uint8_t * pData, const uint32_t
 	return len;
 }
 
-int CMsgEncapsulation::encapsulationOpenMessage(uint8_t * pData, const uint32_t & c_unLength){
+int CMsgEncapsulation::encapsulationOpenMessage(uint8_t * pData, const uint32_t & c_unLength) {
 
 	uint8_t szEncapsulationHeader[1024];
 	uint8_t szCommandSpecificData[1024];
@@ -492,8 +492,8 @@ int CMsgEncapsulation::encapsulationOpenMessage(uint8_t * pData, const uint32_t 
 	return len;
 }
 
-int CMsgEncapsulation::encapsulationReadMessage(uint8_t * pData, const uint32_t & c_unLength){
-	
+int CMsgEncapsulation::encapsulationReadMessage(uint8_t * pData, const uint32_t & c_unLength) {
+
 	uint8_t szEncapsulationHeader[1024];
 	uint8_t szCommandSpecificData[1024];
 	uint8_t szCommonIndustrialProtocol[1024];
@@ -548,7 +548,7 @@ int CMsgEncapsulation::encapsulationReadMessage(uint8_t * pData, const uint32_t 
 
 
 int CMsgEncapsulation::encapsulationWriteMessage(uint8_t * pData, const uint32_t & c_unLength) {
-	
+
 	uint8_t szEncapsulationHeader[1024];
 	uint8_t szCommandSpecificData[1024];
 	uint8_t szCommonIndustrialProtocol[1024];
@@ -601,13 +601,13 @@ int CMsgEncapsulation::encapsulationWriteMessage(uint8_t * pData, const uint32_t
 	return len;
 }
 
-int CMsgEncapsulation::unPackReadResponse(uint8_t * pDate, const uint32_t & c_unLength){
+int CMsgEncapsulation::unPackReadResponse(uint8_t * pDate, const uint32_t & c_unLength) {
 
 	if (pDate[25] != 0) {
 		return -1;
 	}
 
-	return pDate[c_unLength-2]|pDate[c_unLength-1]<<8;
+	return pDate[c_unLength - 2] | pDate[c_unLength - 1] << 8;
 }
 
 

@@ -124,11 +124,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="EtherNetIP.cpp" />
+    <ClCompile Include="GlobalTool.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MsgEncapsulation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EtherNetIP.h" />
+    <ClInclude Include="GlobalTool.h" />
     <ClInclude Include="MsgEncapsulation.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

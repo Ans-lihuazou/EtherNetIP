@@ -24,12 +24,18 @@
     <ClCompile Include="EtherNetIP.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="GlobalTool.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MsgEncapsulation.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="EtherNetIP.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalTool.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

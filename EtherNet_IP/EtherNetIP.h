@@ -1,11 +1,13 @@
-#pragma once
+#ifndef ETHERNETIP_H__20221117
+#define ETHERNETIP_H__20221117
 
 #ifdef _WIN32
-
+#pragma comment(lib,"ws2_32.lib")
 #include <WinSock2.h>
 #include <WS2tcpip.h>
 
 #elif __linux__
+
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <arpa/inet.h>
@@ -15,6 +17,7 @@
 
 #include "MsgEncapsulation.h"
 
+
 class CEtherNetIP {
 public:
 
@@ -22,12 +25,14 @@ public:
 	virtual ~CEtherNetIP();
 
 #ifdef _WIN32
-	
-	int init(SOCKET socket);
+
+	void setSocket(SOCKET socket);
 #elif __linux__
 
-	int init(int nSocket);
+	void setSocket(int nSocket);
 #endif
+
+	int init();
 
 	int read(const std::string& request, const uint32_t& c_unCount = 1);
 
@@ -97,3 +102,5 @@ inline int CEtherNetIP::write(const std::string& c_strTag, T& c_usValue, const u
 
 	return 0;
 }
+
+#endif /* ETHERNETIP_H__20221117 */

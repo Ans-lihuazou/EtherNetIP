@@ -1,17 +1,30 @@
 #include "EtherNetIP.h"
 
-CEtherNetIP::CEtherNetIP(){
+CEtherNetIP::CEtherNetIP() {
 
 	m_unOTNetworkConnectionID = 0;
 	m_unTONetworkConnectionID = 0;
 }
 
-CEtherNetIP::~CEtherNetIP(){
+CEtherNetIP::~CEtherNetIP() {
 
 }
 
+#ifdef _WIN32
 
-int CEtherNetIP::init(SOCKET sclient){
+void CEtherNetIP::setSocket(SOCKET socket) {
+
+	m_sClient = socket;
+}
+#elif __linux__
+
+void CEtherNetIP::setSocket(int nSocket) {
+
+	m_sClient = nSocket;
+}
+#endif
+
+int CEtherNetIP::init() {
 
 	EIPHEADER_T EIPHeader;
 	/* REGISTER->CLOSE->OPEN */
@@ -33,12 +46,12 @@ int CEtherNetIP::init(SOCKET sclient){
 	m_msgEncapsulation.setOriginatorSerialNumber(Tool::getConnectionSerialNumber()*Tool::getConnectionSerialNumber());
 
 	/*  get register request message */
-	std::cout << "register\n";
+	/* std::cout << "register\n"; */
 	int nRegisterCmdLen = m_msgEncapsulation.encapsulationRegisterMessage(szRegisterCmdBuf, sizeof(szRegisterCmdBuf));
 
 	/* send register request */
-	send(sclient, (char*)szRegisterCmdBuf, nRegisterCmdLen, 0);
-	int recvLength = recv(sclient, (char*)szRegisterResponseCmdBuf, 24, 0);
+	send(m_sClient, (char*)szRegisterCmdBuf, nRegisterCmdLen, 0);
+	/* int recvLength =  */recv(m_sClient, (char*)szRegisterResponseCmdBuf, 24, 0);
 	memcpy(&EIPHeader, szRegisterResponseCmdBuf, 24);
 
 	/* if success status is 0 */
@@ -53,16 +66,16 @@ int CEtherNetIP::init(SOCKET sclient){
 	/* set Session Handle  */
 	m_msgEncapsulation.setEHSessionHandle(EIPHeader.unSessionHandle);
 
-	recv(sclient, (char*)&szRegisterResponseCmdBuf[24], EIPHeader.usDataLength, 0);
+	recv(m_sClient, (char*)&szRegisterResponseCmdBuf[24], EIPHeader.usDataLength, 0);
 
-	std::cout << "forward close\n";
+	/* std::cout << "forward close\n"; */
 	/* send forward close request */
 	int nForwardCloseCmdLen = m_msgEncapsulation.encapsulationCloseMessage(szForwardCloseCmdBuf, sizeof(szForwardCloseCmdBuf));
 
-	send(sclient, (char*)szForwardCloseCmdBuf, nForwardCloseCmdLen, 0);
+	send(m_sClient, (char*)szForwardCloseCmdBuf, nForwardCloseCmdLen, 0);
 
 	/* header */
-	recv(sclient, (char*)szForwardCloseResponseCmdBuf, 24, 0);
+	recv(m_sClient, (char*)szForwardCloseResponseCmdBuf, 24, 0);
 	memset(&EIPHeader, 0, 24);
 	memcpy(&EIPHeader, szForwardCloseResponseCmdBuf, 24);
 	if (EIPHeader.unStatus != 0) {
@@ -70,14 +83,14 @@ int CEtherNetIP::init(SOCKET sclient){
 	}
 
 	/* data */
-	recv(sclient, (char*)&szForwardCloseResponseCmdBuf[24], EIPHeader.usDataLength, 0);
+	recv(m_sClient, (char*)&szForwardCloseResponseCmdBuf[24], EIPHeader.usDataLength, 0);
 
 	/* send open request */
-	std::cout << "open\n";
+	/* std::cout << "open\n"; */
 	int nLargeForwardOpenCmdLen = m_msgEncapsulation.encapsulationOpenMessage(szLargeForwardOpenCmdBuf, sizeof(szLargeForwardOpenCmdBuf));
 
-	send(sclient, (char*)szLargeForwardOpenCmdBuf, nLargeForwardOpenCmdLen, 0);
-	recv(sclient, (char*)szLargeForwardOpenResponseCmdBuf, 24, 0);
+	send(m_sClient, (char*)szLargeForwardOpenCmdBuf, nLargeForwardOpenCmdLen, 0);
+	recv(m_sClient, (char*)szLargeForwardOpenResponseCmdBuf, 24, 0);
 	memset(&EIPHeader, 0, 24);
 	memcpy(&EIPHeader, szLargeForwardOpenResponseCmdBuf, 24);
 
@@ -86,20 +99,19 @@ int CEtherNetIP::init(SOCKET sclient){
 		return -4;
 	}
 
-	int nLength = recv(sclient, (char*)&szLargeForwardOpenResponseCmdBuf[24], EIPHeader.usDataLength, 0);
-	
+	/* int nLength = */ recv(m_sClient, (char*)&szLargeForwardOpenResponseCmdBuf[24], EIPHeader.usDataLength, 0);
+
 	/* if success General Status is 0x00 */
 	if (szLargeForwardOpenResponseCmdBuf[24 + 18] != 0) {
 		return -5;
 	}
 
 	/* get connect id */
-	for (int i = 0, j = 20,k=24; i < 4; i++,j++,k++) {
-		m_unOTNetworkConnectionID |= (uint32_t)szLargeForwardOpenResponseCmdBuf[24 + j] << (i*8);
-		m_unTONetworkConnectionID |= (uint32_t)szLargeForwardOpenResponseCmdBuf[24 + k] << (i*8);
+	for (int i = 0, j = 20, k = 24; i < 4; i++, j++, k++) {
+		m_unOTNetworkConnectionID |= (uint32_t)szLargeForwardOpenResponseCmdBuf[24 + j] << (i * 8);
+		m_unTONetworkConnectionID |= (uint32_t)szLargeForwardOpenResponseCmdBuf[24 + k] << (i * 8);
 	}
 
-	m_sClient = sclient;
 	return 0;
 }
 
@@ -108,7 +120,7 @@ int CEtherNetIP::init(SOCKET sclient){
 int CEtherNetIP::read(const std::string & request, const uint32_t& c_unCount) {
 
 	EIPHEADER_T EIPHeader;
-	uint8_t szReadRequest[1024] = {0};
+	uint8_t szReadRequest[1024] = { 0 };
 	uint32_t unRequestLen = 0;
 	m_msgEncapsulation.setCSDConnectID(m_unOTNetworkConnectionID);
 	m_msgEncapsulation.setANSISymbol(request);
@@ -123,7 +135,7 @@ int CEtherNetIP::read(const std::string & request, const uint32_t& c_unCount) {
 	}
 
 	send(m_sClient, (char*)szReadRequest, unRequestLen, 0);
-	
+
 	recv(m_sClient, (char*)&EIPHeader, 24, 0);
 
 	/* if success status is 0 */

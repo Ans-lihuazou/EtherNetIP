@@ -1,5 +1,3 @@
-/* only windows */
-#pragma comment(lib,"ws2_32.lib")// link ws2_32.lib
 #include "EtherNetIP.h"
 
 int main() {
@@ -21,7 +19,7 @@ int main() {
 	SOCKET sClient = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (sClient == INVALID_SOCKET) {
 
-		std::cout << "invalid socket!\n" ;
+		std::cout << "invalid socket!\n";
 		return 0;
 	}
 
@@ -40,7 +38,7 @@ int main() {
 		return 0;
 	}
 
-	std::cout << "init return value is " << netIp.init(sClient) << "\n";
+	netIp.setSocket(sClient);
 
 #elif __linux__
 
@@ -50,34 +48,36 @@ int main() {
 	/* initialize variable */
 	memset(&addr, 0, sizeof(struct sockaddr_in));
 	addr.sin_family = AF_INET;
-	addr.sin_port = htons(nPort);
-	addr.sin_addr.s_addr = inet_addr(sIp.c_str());
+	addr.sin_port = htons(44818);
+	addr.sin_addr.s_addr = inet_addr("192.168.56.126");
 
 
 	/* creat socket */
-	m_nSocket = socket(AF_INET, SOCK_STREAM, 0);
-	if (m_nSocket < 0) {
-		cout << "error: create socket is fail\n";
+	nSocket = socket(AF_INET, SOCK_STREAM, 0);
+	if (nSocket < 0) {
+		std::cout << "error: create socket is fail\n";
 		return -1;
 	}
 
 	/* connect server */
 	if (connect(nSocket, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
-		cout << "error: connect is fail\n";
+		std::cout << "error: connect is fail\n";
 		return -1;
 	}
 
-	std::cout << "init return value is " << netIp.init(sClient) << "\n";
+	netIp.setSocket(nSocket);
 
 #endif
-	
-	
+
+	std::cout << "init return value is " << netIp.init() << "\n";
+
 	std::cout << "read return value is " << netIp.read("dwordTest") << "\n";
 
 	//int(16),word(16),byte(8),sint(8),dword(32)
-	using dataType = typename uint16_t;
+	//using dataType = typename uint16_t;
+	typedef uint16_t dataType;
 	std::string tag = "wordTest";
-	dataType value = 0x0f;
+	dataType value = 0xff;
 	uint16_t type = OMRON_WORD_TYPE;
 	std::cout << "write return value is " << netIp.write<dataType>(tag, value, type) << "\n";
 
