@@ -1,5 +1,6 @@
 #include "EtherNetIP.h"
 
+
 int main() {
 
 	Tool::initRand();
@@ -71,15 +72,23 @@ int main() {
 
 	std::cout << "init return value is " << netIp.init() << "\n";
 
-	std::cout << "read return value is " << netIp.read("dwordTest") << "\n";
+	std::cout << "read return value is " << netIp.read("STRING_25") << "\n";
 
 	//int(16),word(16),byte(8),sint(8),dword(32)
 	//using dataType = typename uint16_t;
-	typedef uint16_t dataType;
-	std::string tag = "wordTest";
-	dataType value = 0xff;
-	uint16_t type = OMRON_WORD_TYPE;
+	
+	typedef std::string dataType;
+	std::string tag = "STRING_25";
+	//uint16_t insertValue[10] = { 0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff,0xff };
+	uint16_t temp = 0x01;
+	dataType value;
+	value.append((char*)(&temp), sizeof(temp));
+	uint16_t type = OMRON_STRING_TYPE;
+	/*
+	*Default Parameters 1: operation count
+	*Default Parameters 2: use in operation array
+	*/
 	std::cout << "write return value is " << netIp.write<dataType>(tag, value, type) << "\n";
-
+	
 	return 0;
 }

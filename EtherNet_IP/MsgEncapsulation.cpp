@@ -21,7 +21,7 @@ CMsgEncapsulation::CMsgEncapsulation() {
 	m_usConnectionSerialNumber = 0;
 	m_usOriginatorSerialNumber = 0;
 
-	m_pValue = nullptr;
+	m_strValue = "";
 	//std::cout << " m_unEHSessionHandle: " << m_unEHSessionHandle << "\n";
 }
 
@@ -89,10 +89,6 @@ void CMsgEncapsulation::setANSISymbol(const std::string & c_strSymbol) {
 	this->m_usValue = c_usValue;
 }*/
 
-void CMsgEncapsulation::setValue(void* c_usValue) {
-
-	this->m_pValue = c_usValue;
-}
 
 void CMsgEncapsulation::setDataType(const uint16_t & c_usDataType) {
 
@@ -102,6 +98,11 @@ void CMsgEncapsulation::setDataType(const uint16_t & c_usDataType) {
 void CMsgEncapsulation::setOptionCount(const uint16_t & c_unOptCount) {
 
 	this->m_usOptionCount = c_unOptCount;
+}
+
+void CMsgEncapsulation::setStartIndex(const uint8_t & c_ucStartIndex){
+
+	this->m_ucStartIndex = c_ucStartIndex;
 }
 
 int CMsgEncapsulation::encapsulationEncapsulationHeader(uint8_t * pData, const uint32_t & c_unLength) {
@@ -326,6 +327,7 @@ int CMsgEncapsulation::encapsulationReadCIPClassGeneric(uint8_t * pData, const u
 	return sizeof(this->m_usOptionCount);
 }
 
+/*
 int CMsgEncapsulation::encapsulationWriteCIPClassGeneric(uint8_t * pData, const uint32_t & c_unLength) {
 
 	int len = 0;
@@ -341,21 +343,60 @@ int CMsgEncapsulation::encapsulationWriteCIPClassGeneric(uint8_t * pData, const 
 	memcpy(pData + len, &this->m_usOptionCount, sizeof(this->m_usOptionCount));
 	len += sizeof(this->m_usOptionCount);
 
-	if (len + sizeof(this->m_pValue) > c_unLength) {
+	if (len + m_strValue.length() > c_unLength) {
 		return -3;
 	}
-	memcpy(pData + len, &this->m_pValue, sizeof(this->m_pValue));
-	len += sizeof(this->m_pValue);
+	memcpy(pData + len, m_strValue.c_str(), m_strValue.length());
+	len += m_strValue.length();
 
 	setCSDDataLength(len);
 
 	return len;
 }
+*/
 
+/*
 int CMsgEncapsulation::encapsulationWriteCommonIndustrialProtocol(uint8_t * pData, const uint32_t & c_unLength) {
 
-	return encapsulationReadCommonIndustrialProtocol(pData, c_unLength);
+	READ_COMMOMINDUSTRIALPROTOCOL_T readRequest;
+
+	readRequest.strANSISymbol = this->m_strANSISymbol;
+
+	readRequest.ucDataSize = this->m_strANSISymbol.length();
+
+	readRequest.ucPathSegmentType = 0x91;
+
+	readRequest.ucPathSize = (readRequest.strANSISymbol.length() + 1) / 2 + 2;
+
+	readRequest.ucServiceCode = m_ucCIPServiceCode;
+
+	if (sizeof(readRequest) > c_unLength) {
+		return -1;
+	}
+
+	uint32_t unLength = 0;
+	memcpy(pData, &readRequest, 4);
+	unLength = 4;
+	memcpy(pData + unLength, readRequest.strANSISymbol.c_str(), readRequest.strANSISymbol.length());
+	unLength += readRequest.strANSISymbol.length();
+	//std::cout << "set length is " << m_usCSDDataLength + 4 + readRequest.strANSISymbol.length() << "\n";
+	if (unLength & 1) {
+		uint8_t ucComplement = 0x00;
+		memcpy(pData + unLength, &ucComplement, sizeof(ucComplement));
+		unLength++;
+	}
+
+	uint16_t temp = 0x0028;
+
+	memcpy(pData + unLength, &temp, 2);
+
+	unLength += 2;
+
+	setCSDDataLength(m_usCSDDataLength + unLength);
+
+	return unLength;
 }
+*/
 
 int CMsgEncapsulation::encapsulationRegisterMessage(uint8_t * pData, const uint32_t & c_unLength) {
 
@@ -546,7 +587,7 @@ int CMsgEncapsulation::encapsulationReadMessage(uint8_t * pData, const uint32_t 
 	return len;
 }
 
-
+/*
 int CMsgEncapsulation::encapsulationWriteMessage(uint8_t * pData, const uint32_t & c_unLength) {
 
 	uint8_t szEncapsulationHeader[1024];
@@ -600,7 +641,7 @@ int CMsgEncapsulation::encapsulationWriteMessage(uint8_t * pData, const uint32_t
 	//std::cout << " read len : " << len1 << " " << len2 << " " << len3 << " " << len4 << "\n";
 	return len;
 }
-
+*/
 int CMsgEncapsulation::unPackReadResponse(uint8_t * pDate, const uint32_t & c_unLength) {
 
 	if (pDate[25] != 0) {

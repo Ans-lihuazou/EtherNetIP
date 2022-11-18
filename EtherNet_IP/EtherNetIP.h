@@ -37,7 +37,8 @@ public:
 	int read(const std::string& request, const uint32_t& c_unCount = 1);
 
 	template<class T>
-	int write(const std::string& c_strTag, T& c_usValue, const uint16_t& c_usDataType);
+	int write(const std::string& c_strTag, const T c_usValue, const uint16_t& c_usDataType,
+		const uint32_t& c_unCount = 1, const uint8_t& c_ucStartIndex = 0);
 
 private:
 
@@ -57,17 +58,18 @@ private:
 };
 
 template<class T>
-inline int CEtherNetIP::write(const std::string& c_strTag, T& c_usValue, const uint16_t& c_usDataType) {
+inline int CEtherNetIP::write(const std::string& c_strTag,const T c_usValue, const uint16_t& c_usDataType,
+								const uint32_t& c_unCount, const uint8_t& c_ucStartIndex) {
 	EIPHEADER_T EIPHeader;
 	uint8_t szWriteRequest[1024] = { 0 };
 	int len = 0;
 	m_msgEncapsulation.setCSDConnectID(m_unOTNetworkConnectionID);
 	m_msgEncapsulation.setANSISymbol(c_strTag);
-	//m_msgEncapsulation.setValue(c_unValue);
-	void* temp = static_cast<void*>(&c_usValue);
-	m_msgEncapsulation.setValue(temp);
+	m_msgEncapsulation.setOptionCount(c_unCount);
+	m_msgEncapsulation.setValue<T>(c_usValue);
 	m_msgEncapsulation.setDataType(c_usDataType);
-	m_msgEncapsulation.setOptionCount(1);
+	m_msgEncapsulation.setStartIndex(c_ucStartIndex);
+	
 	len = m_msgEncapsulation.encapsulationWriteMessage<T>(szWriteRequest, sizeof(szWriteRequest));
 	//std::cout << " request len is " << len << "\n";
 	if (len <= 0) {

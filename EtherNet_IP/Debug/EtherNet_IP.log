@@ -1,2 +1,25 @@
 ﻿  main.cpp
+c:\users\user\source\repos\ethernet_ip\ethernet_ip\msgencapsulation.h(176): warning C4267: “初始化”: 从“size_t”转换到“uint16_t”，可能丢失数据
+  c:\users\user\source\repos\ethernet_ip\ethernet_ip\msgencapsulation.h(270): note: 参见对正在编译的函数 模板 实例化“int CMsgEncapsulation::encapsulationWriteCIPClassGeneric<T>(uint8_t *,const uint32_t &)”的引用
+          with
+          [
+              T=dataType
+          ]
+  c:\users\user\source\repos\ethernet_ip\ethernet_ip\ethernetip.h(73): note: 参见对正在编译的函数 模板 实例化“int CMsgEncapsulation::encapsulationWriteMessage<T>(uint8_t *,const uint32_t &)”的引用
+          with
+          [
+              T=dataType
+          ]
+  c:\users\user\source\repos\ethernet_ip\ethernet_ip\main.cpp(87): note: 参见对正在编译的函数 模板 实例化“int CEtherNetIP::write<dataType>(const std::string &,const T,const uint16_t &,const uint32_t &,const uint8_t &)”的引用
+          with
+          [
+              T=dataType
+          ]
+c:\users\user\source\repos\ethernet_ip\ethernet_ip\msgencapsulation.h(215): warning C4267: “=”: 从“size_t”转换到“uint8_t”，可能丢失数据
+  c:\users\user\source\repos\ethernet_ip\ethernet_ip\msgencapsulation.h(273): note: 参见对正在编译的函数 模板 实例化“int CMsgEncapsulation::encapsulationWriteCommonIndustrialProtocol<T>(uint8_t *,const uint32_t &)”的引用
+          with
+          [
+              T=dataType
+          ]
+c:\users\user\source\repos\ethernet_ip\ethernet_ip\msgencapsulation.h(219): warning C4267: “=”: 从“size_t”转换到“uint8_t”，可能丢失数据
   EtherNet_IP.vcxproj -> C:\Users\user\source\repos\EtherNet_IP\Debug\EtherNet_IP.exe
